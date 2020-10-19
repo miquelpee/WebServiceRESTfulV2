@@ -12,14 +12,23 @@ const post_reservation = (req, res) => {
 
   const userName = req.body.name;
 
-  //Taking care of request duration.
+  //Trying to handle duration, start and end time.
   let endDate = new Date(req.body.start);
   let hm = req.body.duration.split(":");
   let millisecs;
-  if (hm.length == 1) {
+  if (req.body.duration.match(/[a-zA-Z]/i)){
+    console.log("Duration is in wrong format. Expecting hh:mm");
+    return res.status(400).json({ message: "Duration is in wrong format. Expecting hh:mm"});
+  } else if (hm.length > 2) {
+    console.log("Duration is in wrong format. Expecting hh:mm");
+    return res.status(400).json({ message: "Duration is in wrong format. Expecting hh:mm"});
+  } else if (hm.length == 2 && hm[1] >= 60) {
+    console.log("Duration is wrong format. Expecting hh:mm");
+    return res.status(400).json({ message: "Duration is in wrong format. Expecting hh:mm"});
+  } else if (hm.length == 1) {
       millisecs = (hm[0] * 3600 * 1000);
-  } else millisecs = (hm[0]*3600+hm[1]*60) * 1000;
-  endDate = endDate.getTime() + millisecs;
+  } else millisecs = (hm[0]*3600+hm[1]*60) * 1000; 
+  endDate = endDate.getTime() + millisecs;  
 
   const newReservation = new Reservation({
       carmodel: req.body.carmodel,
@@ -73,12 +82,11 @@ const post_reservation = (req, res) => {
 
               newUser.save().then(() => { //Creating customer.
                 newReservation.save().then(() => {
-                    newUser.reservations.push(newReservation); //Saving reservation for him.
-                
-                    newUser.save().then(() => {
+                    newUser.reservations.push(newReservation); //Saving reservation for him.                
+                      newUser.save().then(() => {
                         console.log("Reservation added for new customer " + userName + ". Reservation: " +  newReservation);
                         return res.status(201).json({ message: "Reservation added for new customer " + userName + ". Reservation: " +  newReservation}) 
-                    });
+                      });
                 });
               })
           }
@@ -154,7 +162,7 @@ const delete_reservation = (req, res) => {
 
 //Updating complete reservation.
 const put_reservation = (req, res) => {
-  console.log("---> PUT reservation.");
+  console.log("---> PUT reservation. <---");
 
   //Checking that request has data we expect.
   if (!req.body.hasOwnProperty('name') || !req.body.hasOwnProperty('carmodel') || !req.body.hasOwnProperty('service') || !req.body.hasOwnProperty('duration') || !req.body.hasOwnProperty('start')) {
@@ -163,13 +171,22 @@ const put_reservation = (req, res) => {
 
   const userName = req.body.name;
 
-  //Taking care of request duration.
+  //Trying to handle duration, start and end time.
   let endDate = new Date(req.body.start);
   let hm = req.body.duration.split(":");
   let millisecs;
-  if (hm.length == 1) {
+  if (req.body.duration.match(/[a-zA-Z]/i)){
+    console.log("Duration is in wrong format. Expecting hh:mm");
+    return res.status(400).json({ message: "Duration is in wrong format. Expecting hh:mm"});
+  } else if (hm.length > 2) {
+    console.log("Duration is in wrong format. Expecting hh:mm");
+    return res.status(400).json({ message: "Duration is in wrong format. Expecting hh:mm"});
+  } else if (hm.length == 2 && hm[1] >= 60) {
+    console.log("Duration is wrong format. Expecting hh:mm");
+    return res.status(400).json({ message: "Duration is in wrong format. Expecting hh:mm"});
+  } else if (hm.length == 1) {
       millisecs = (hm[0] * 3600 * 1000);
-  } else millisecs = (hm[0]*3600+hm[1]*60) * 1000;
+  } else millisecs = (hm[0]*3600+hm[1]*60) * 1000; 
   endDate = endDate.getTime() + millisecs;
 
   const updateReservation = {
@@ -210,9 +227,9 @@ const put_reservation = (req, res) => {
                     }
                   })
                 }
+              })
             })
-          })
-        }
+          }
         })
       })
     }
@@ -237,50 +254,109 @@ const patch_reservation = (req, res) => {
       Reservation.findById({_id: req.params.id}, (err, result) => {
         console.log(result);
 
+        let updateReservationTimes = {};
+
         //Adding data to req.body based on what is included in request.
         if (req.body.duration == undefined && req.body.start != undefined) {
+          
           req.body.duration = result.duration;
 
           let endDate = new Date(req.body.start);
           let hm = req.body.duration.split(":");
           let millisecs;
 
-          if (hm.length == 1) {
-            millisecs = (hm[0] * 3600 * 1000);
+          if (req.body.duration.match(/[a-zA-Z]/i)){
+            console.log("Duration is in wrong format. Expecting hh:mm");
+            return res.status(400).json({ message: "Duration is in wrong format. Expecting hh:mm"});
+          } else if (hm.length > 2) {
+            console.log("Duration is in wrong format. Expecting hh:mm");
+            return res.status(400).json({ message: "Duration is in wrong format. Expecting hh:mm"});
+          } else if (hm.length == 2 && hm[1] >= 60) {
+            console.log("Duration is wrong format. Expecting hh:mm");
+            return res.status(400).json({ message: "Duration is in wrong format. Expecting hh:mm"});
+          } else if (hm.length == 1) {
+              millisecs = (hm[0] * 3600 * 1000);
           } else millisecs = (hm[0]*3600+hm[1]*60) * 1000;
-          endDate = endDate.getTime() + millisecs;
-          
+
+          endDate = endDate.getTime() + millisecs;          
           req.body.end = endDate;
+
+          updateReservationTimes = {
+            name: req.body.name,
+            service: req.body.service,
+            duration: result.duration,
+            start: req.body.start,
+            end: endDate
+          }
+
         } else if (req.body.duration != undefined && req.body.start == undefined) {
+
+          req.body.start = result.start;
+
           let endDate = new Date(result.start);
           let hm = req.body.duration.split(":");
           let millisecs;
     
-          if (hm.length == 1) {
-            millisecs = (hm[0] * 3600 * 1000);
+          if (req.body.duration.match(/[a-zA-Z]/i)){
+            console.log("Duration is in wrong format. Expecting hh:mm");
+            return res.status(400).json({ message: "Duration is in wrong format. Expecting hh:mm"});
+          } else if (hm.length > 2) {
+            console.log("Duration is in wrong format. Expecting hh:mm");
+            return res.status(400).json({ message: "Duration is in wrong format. Expecting hh:mm"});
+          } else if (hm.length == 2 && hm[1] >= 60) {
+            console.log("Duration is wrong format. Expecting hh:mm");
+            return res.status(400).json({ message: "Duration is in wrong format. Expecting hh:mm"});
+          } else if (hm.length == 1) {
+              millisecs = (hm[0] * 3600 * 1000);
           } else millisecs = (hm[0]*3600+hm[1]*60) * 1000;
-          endDate = endDate.getTime() + millisecs;
-          
-          req.body.end = endDate; 
+
+          endDate = endDate.getTime() + millisecs;          
+          req.body.end = endDate;
+
+          updateReservationTimes = {
+            name: req.body.name,
+            service: req.body.service,
+            duration: req.body.duration,
+            start: result.start,
+            end: endDate
+          }
+
         } else {
           let endDate = new Date(req.body.start);
           let hm = req.body.duration.split(":");
           let millisecs;
 
-          if (hm.length == 1) {
-            millisecs = (hm[0] * 3600 * 1000);
+          if (req.body.duration.match(/[a-zA-Z]/i)){
+            console.log("Duration is in wrong format. Expecting hh:mm");
+            return res.status(400).json({ message: "Duration is in wrong format. Expecting hh:mm"});
+          } else if (hm.length > 2) {
+            console.log("Duration is in wrong format. Expecting hh:mm");
+            return res.status(400).json({ message: "Duration is in wrong format. Expecting hh:mm"});
+          } else if (hm.length == 2 && hm[1] >= 60) {
+            console.log("Duration is wrong format. Expecting hh:mm");
+            return res.status(400).json({ message: "Duration is in wrong format. Expecting hh:mm"});
+          } else if (hm.length == 1) {
+              millisecs = (hm[0] * 3600 * 1000);
           } else millisecs = (hm[0]*3600+hm[1]*60) * 1000;
-          endDate = endDate.getTime() + millisecs;
-          
+         
+          endDate = endDate.getTime() + millisecs;          
           req.body.end = endDate;
+
+          updateReservationTimes = {
+            name: req.body.name,
+            service: req.body.service,
+            duration: req.body.duration,
+            start: req.body.start,
+            end: endDate
+          }
         }
 
-        checkReservations(reservations, req.body, req.params.id).then(checkResult => { //Checking that there's no double booking.
+        checkReservations(reservations, updateReservationTimes, req.params.id).then(checkResult => { //Checking that there's no double booking.
           if(checkResult) {
             console.log("Double booking found!");
             return res.status(400).json({ message: "Double booking found!"});
           } else { //In case no double booking, updating it.
-            Reservation.findByIdAndUpdate({_id: req.params.id}, req.body, {new: true}, (err, result) => {
+            Reservation.findByIdAndUpdate({_id: req.params.id}, updateReservationTimes, {new: true}, (err, result) => {
               if (err) {
                 console.log("Update failed for id " + req.params.id + ". Reason: " + err.message);
                 res.status(400).json({message : "Error 400: " + err.message});
@@ -340,5 +416,5 @@ async function checkID (reservations, idToUpd) {
         return found;
       } 
     }
-    return found;
-  }
+  return found;
+}

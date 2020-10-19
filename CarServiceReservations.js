@@ -10,8 +10,7 @@ const app = express()
 mongoose.connect('mongodb://localhost/carservicesV2', { 
  	useNewUrlParser: true,
  	useUnifiedTopology: true 
- }
-)
+})
 
 app.use(bodyParser.json()) // to support JSON-encoded bodies
 
