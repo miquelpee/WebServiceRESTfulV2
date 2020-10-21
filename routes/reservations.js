@@ -14,6 +14,10 @@ const post_reservation = (req, res) => {
 
   //Trying to handle duration, start and end time.
   let endDate = new Date(req.body.start);
+  if (isNaN(endDate)) {  
+    console.log("Start time is in wrong format. Try e.g. yyyy-mm-ddThh:mm:ss");
+    return res.status(400).json({ message: "Start time is in wrong format. Try e.g. yyyy-mm-ddThh:mm:ss"});
+  }
   let hm = req.body.duration.split(":");
   let millisecs;
   if (req.body.duration.match(/[a-zA-Z]/i)){
@@ -173,6 +177,10 @@ const put_reservation = (req, res) => {
 
   //Trying to handle duration, start and end time.
   let endDate = new Date(req.body.start);
+  if (isNaN(endDate)) {  
+    console.log("Start time is in wrong format. Try e.g. yyyy-mm-ddThh:mm:ss");
+    return res.status(400).json({ message: "Start time is in wrong format. Try e.g. yyyy-mm-ddThh:mm:ss"});
+  }
   let hm = req.body.duration.split(":");
   let millisecs;
   if (req.body.duration.match(/[a-zA-Z]/i)){
@@ -262,6 +270,10 @@ const patch_reservation = (req, res) => {
           req.body.duration = result.duration;
 
           let endDate = new Date(req.body.start);
+          if (isNaN(endDate)) {  
+            console.log("Start time is in wrong format. Try e.g. yyyy-mm-ddThh:mm:ss");
+            return res.status(400).json({ message: "Start time is in wrong format. Try e.g. yyyy-mm-ddThh:mm:ss"});
+          }
           let hm = req.body.duration.split(":");
           let millisecs;
 
@@ -280,20 +292,45 @@ const patch_reservation = (req, res) => {
 
           endDate = endDate.getTime() + millisecs;          
           req.body.end = endDate;
-
-          updateReservationTimes = {
-            name: req.body.name,
-            service: req.body.service,
-            duration: result.duration,
-            start: req.body.start,
-            end: endDate
+          
+          if (req.body.carmodel == undefined && req.body.service == undefined) {
+            updateReservationTimes = {
+              duration: result.duration,
+              start: req.body.start,
+              end: endDate
+            }
+          } else if (req.body.carmodel == undefined && req.body.service != undefined) {
+            updateReservationTimes = {
+              service: req.body.service,
+              duration: result.duration,
+              start: req.body.start,
+              end: endDate
+            }
+          } else if (req.body.carmodel != undefined && req.body.service == undefined) {
+            updateReservationTimes = {
+              carmodel: req.body.carmodel,
+              duration: result.duration,
+              start: req.body.start,
+              end: endDate
+            }
+          } else {
+            updateReservationTimes = {
+              service: req.body.service,
+              carmodel: req.body.carmodel,
+              duration: result.duration,
+              start: req.body.start,
+              end: endDate
+            }
           }
-
         } else if (req.body.duration != undefined && req.body.start == undefined) {
 
           req.body.start = result.start;
 
           let endDate = new Date(result.start);
+          if (isNaN(endDate)) {  
+            console.log("Start time is in wrong format. Try e.g. yyyy-mm-ddThh:mm:ss");
+            return res.status(400).json({ message: "Start time is in wrong format. Try e.g. yyyy-mm-ddThh:mm:ss"});
+          }
           let hm = req.body.duration.split(":");
           let millisecs;
     
@@ -313,16 +350,41 @@ const patch_reservation = (req, res) => {
           endDate = endDate.getTime() + millisecs;          
           req.body.end = endDate;
 
-          updateReservationTimes = {
-            name: req.body.name,
-            service: req.body.service,
-            duration: req.body.duration,
-            start: result.start,
-            end: endDate
-          }
-
+          if (req.body.carmodel == undefined && req.body.service == undefined) {
+            updateReservationTimes = {
+              duration: result.duration,
+              start: req.body.start,
+              end: endDate
+            }
+          } else if (req.body.carmodel == undefined && req.body.service != undefined) {
+            updateReservationTimes = {
+              service: req.body.service,
+              duration: req.body.duration,
+              start: result.start,
+              end: endDate
+            }
+          } else if (req.body.carmodel != undefined && req.body.service == undefined) {
+            updateReservationTimes = {
+              carmodel: req.body.carmodel,
+              duration: req.body.duration,
+              start: result.start,
+              end: endDate
+            }
+          } else {
+            updateReservationTimes = {
+              service: req.body.service,
+              carmodel: req.body.carmodel,
+              duration: req.body.duration,
+              start: result.start,
+              end: endDate
+            }
+          }   
         } else {
           let endDate = new Date(req.body.start);
+          if (isNaN(endDate)) {  
+            console.log("Start time is in wrong format. Try e.g. yyyy-mm-ddThh:mm:ss");
+            return res.status(400).json({ message: "Start time is in wrong format. Try e.g. yyyy-mm-ddThh:mm:ss"});
+          }
           let hm = req.body.duration.split(":");
           let millisecs;
 
@@ -341,16 +403,37 @@ const patch_reservation = (req, res) => {
          
           endDate = endDate.getTime() + millisecs;          
           req.body.end = endDate;
-
-          updateReservationTimes = {
-            name: req.body.name,
-            service: req.body.service,
-            duration: req.body.duration,
-            start: req.body.start,
-            end: endDate
+          
+          if (req.body.carmodel == undefined && req.body.service == undefined) {
+            updateReservationTimes = {
+              duration: result.duration,
+              start: req.body.start,
+              end: endDate
+            }
+          } else if (req.body.carmodel == undefined && req.body.service != undefined) {
+            updateReservationTimes = {
+              service: req.body.service,
+              duration: req.body.duration,
+              start: req.body.start,
+              end: endDate
+            }
+          } else if (req.body.carmodel != undefined && req.body.service == undefined) {
+            updateReservationTimes = {
+              carmodel: req.body.carmodel,
+              duration: req.body.duration,
+              start: req.body.start,
+              end: endDate
+            }
+          } else {
+            updateReservationTimes = {
+              service: req.body.service,
+              carmodel: req.body.carmodel,
+              duration: req.body.duration,
+              start: req.body.start,
+              end: endDate
+            }
           }
         }
-
         checkReservations(reservations, updateReservationTimes, req.params.id).then(checkResult => { //Checking that there's no double booking.
           if(checkResult) {
             console.log("Double booking found!");
