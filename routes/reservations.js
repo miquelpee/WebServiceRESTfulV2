@@ -264,20 +264,18 @@ const patch_reservation = (req, res) => {
 
         let updateReservationTimes = {};
 
-        //Adding data to req.body based on what is included in request.
+        //Checking input and updating accordingly
         if (req.body.duration == undefined && req.body.start != undefined) {
-          
-          req.body.duration = result.duration;
 
           let endDate = new Date(req.body.start);
           if (isNaN(endDate)) {  
             console.log("Start time is in wrong format. Try e.g. yyyy-mm-ddThh:mm:ss");
             return res.status(400).json({ message: "Start time is in wrong format. Try e.g. yyyy-mm-ddThh:mm:ss"});
           }
-          let hm = req.body.duration.split(":");
+          let hm = result.duration.split(":");
           let millisecs;
 
-          if (req.body.duration.match(/[a-zA-Z]/i)){
+          if (result.duration.match(/[a-zA-Z]/i)){
             console.log("Duration is in wrong format. Expecting hh:mm");
             return res.status(400).json({ message: "Duration is in wrong format. Expecting hh:mm"});
           } else if (hm.length > 2) {
@@ -291,7 +289,6 @@ const patch_reservation = (req, res) => {
           } else millisecs = (hm[0]*3600+hm[1]*60) * 1000;
 
           endDate = endDate.getTime() + millisecs;          
-          req.body.end = endDate;
           
           if (req.body.carmodel == undefined && req.body.service == undefined) {
             updateReservationTimes = {
@@ -324,8 +321,6 @@ const patch_reservation = (req, res) => {
           }
         } else if (req.body.duration != undefined && req.body.start == undefined) {
 
-          req.body.start = result.start;
-
           let endDate = new Date(result.start);
           if (isNaN(endDate)) {  
             console.log("Start time is in wrong format. Try e.g. yyyy-mm-ddThh:mm:ss");
@@ -352,8 +347,8 @@ const patch_reservation = (req, res) => {
 
           if (req.body.carmodel == undefined && req.body.service == undefined) {
             updateReservationTimes = {
-              duration: result.duration,
-              start: req.body.start,
+              duration: req.body.duration,
+              start: result.start,
               end: endDate
             }
           } else if (req.body.carmodel == undefined && req.body.service != undefined) {
@@ -406,7 +401,7 @@ const patch_reservation = (req, res) => {
           
           if (req.body.carmodel == undefined && req.body.service == undefined) {
             updateReservationTimes = {
-              duration: result.duration,
+              duration: req.body.duration,
               start: req.body.start,
               end: endDate
             }

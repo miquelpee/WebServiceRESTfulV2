@@ -14,7 +14,7 @@ Expected body:
 - Name, carmodel, service, duration, start are mandatory for the POST.
 - End time is being calculated based on duration and start time.
 - Double bookings are being checked.
-
+- Incorrect format for the duration and start is being checked.
 
 DELETE (localhost:9111/reservation/:id)
 - Give reservation id as parameter.
@@ -32,8 +32,11 @@ PUT (localhost:9111/reservation/:id)
 - Needs reservation id as parameter.
 - Checks that reservation belongs to customer.
 - Checks that there's no double bookings.
+- Incorrect format for the duration and start is being checked.
 
 PATCH (localhost:9111/reservation/:id)
 - Allows partial update.
 - Needs reservation id as parameter.
-- Checks that there's no double bookings (in case new duration or start is given)
+- Checks that there's no double bookings (in case new duration or start is given).
+- In case only new duration is given, using existin reservation start. In case only new start is given using existin reservation duration.
+- Incorrect format for the duration and start is being checked (in case given).
